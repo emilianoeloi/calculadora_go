@@ -1,0 +1,10 @@
+name: calculadora_go
+version: 0.0.1
+description: Projeto de prova do pacote emilianoeloi/apm (calculadora de linha de comando em Go).
+targets:
+  - claude
+  - copilot
+dependencies:
+  apm:
+    - emilianoeloi/apm#v1.0.0-alpha.1
+  mcp: []

@@ -1,0 +1,6 @@
+
+# APM dependencies
+apm_modules/
+
+# Harness (estado local da fase)
+.harness/

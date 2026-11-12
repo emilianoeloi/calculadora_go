@@ -1,0 +1,72 @@
+# CLAUDE.md
+
+Harness local do Claude Code para este repositório.
+
+## Fonte de verdade do projeto
+
+1. `CLAUDE.md` (raiz do repo)
+2. Specs / contratos de domínio, se houver
+
+Se houver conflito, siga a ordem acima.
+
+## Regras operacionais
+
+- Toda escrita em filesystem deve respeitar os limites do projeto.
+- Não fazer `git push` sem confirmação explícita do usuário.
+- Não capturar exceções de forma ampla sem justificativa.
+- Não expor secrets em logs, eventos ou artefatos.
+
+## Fase da change
+
+Este projeto usa gate de fase (planejamento vs. implementação). Antes de
+implementar, declare a fase:
+
+```bash
+python3 scripts/harness/phase_cli.py set proposal <nome-da-mudanca>
+# ... planejamento (specs, design, tasks) ...
+python3 scripts/harness/phase_cli.py set apply <nome-da-mudanca>
+# ... agora escrita em código é liberada ...
+```
+
+Enquanto a fase for `proposal`, o hook `pre-tool-write-guard.py` bloqueia
+escrita em ``cmd/` e `internal/`` e o hook `pre-tool-bash-guard.py`
+bloqueia `git commit`/`add`/`merge`/`rebase`. Consulte a fase atual com
+`python3 scripts/harness/phase_cli.py show`.
+
+## Fluxo SDD (OpenSpec + OpenSPDD)
+
+| Etapa | Comando | Fase |
+|---|---|---|
+| Propor | `/opsx-propose` | `proposal` |
+| Validar | `openspec validate <change> --strict` | `proposal` |
+| Analisar | `/spdd-analysis openspec/changes/<change>` | `proposal` |
+| Canvas | `/spdd-reasons-canvas spdd/analysis/<arquivo>` | `proposal` |
+| Gerar | `/spdd-generate spdd/prompt/<canvas>` | `apply` |
+| Fechar tasks | `/opsx-apply` + `openspec validate <change> --strict` | `apply` |
+| Arquivar | `openspec archive <change>` | `set done <change>` |
+| Retrospectiva de skills | `skill-retrospective` (depois do merge) | `done` |
+
+## Agentes de SDLC
+
+O pacote entrega quatro agentes (`sdlc-planner`, `sdlc-coder`, `sdlc-reviewer` e
+`sdlc-auditor`). A sessão principal dispara cada um; eles não se chamam entre si.
+Pastas, regras e comando de sensores vêm deste arquivo e do `harness.config.json`.
+
+1. Declare a fase `proposal` e dispare o `sdlc-planner` (proposta, análise e canvas).
+2. Revise e aprove o planejamento; só então declare `apply`
+   (`python3 scripts/harness/phase_cli.py set apply <change>`) e dispare o `sdlc-coder`.
+3. Dispare o `sdlc-reviewer` e leia o relatório antes de decidir o merge.
+4. Dispare o `sdlc-auditor` só quando quiser tirar uma dúvida ou auditar.
+
+O reviewer e o auditor não alteram arquivos; o coder escreve só em ``cmd/` e `internal/``
+e nos checkboxes do `tasks.md`.
+
+## Quality gates mínimos
+
+- Sensores (`sensors_command`): não informado. Ainda não há código; `go test ./...` vira o comando de sensores com a primeira funcionalidade.
+- Lint, build e cobertura: não informado.
+
+## Escopo
+
+Este arquivo é um guia básico para o Claude Code. Detalhes de arquitetura,
+segurança e convenções estão em `CLAUDE.md`.
