@@ -4,6 +4,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Change `numeros-especiais-e-formato` — entradas especiais, overflow e formato
+
+- Entradas especiais passam a ser rejeitadas com código 2: `nan`, `inf`, `infinity` (qualquer caixa, com ou sem sinal), hexadecimais (`0x1p-2`) e sublinhados (`1_000`). Antes eram aceitos.
+- Overflow (resultado infinito com operandos finitos, como `soma 1e308 1e308`) passa a ser erro "resultado fora da faixa" com código 1. Antes imprimia `+Inf` com código 0.
+- `NaN` deixa de ser possível como resultado; `divisao nan 0` passa do código 1 para o código 2.
+- Zero negativo sai como `0` (por exemplo `multiplicacao -1 0`). Antes imprimia `-0`.
+- Formato de impressão definido: `'g'` com precisão `-1` (menor texto que reconstrói o valor). Separador decimal: só o ponto, na entrada e na saída.
+- O código 1 passa a significar "erro de cálculo" em geral (divisão por zero ou resultado fora da faixa).
+- Não informado: comportamento de underflow (`soma 1e-999 0` imprime `0` sem erro); texto exato das mensagens de erro.
+
 ### Change `calculadora-basica` — calculadora de linha de comando
 
 - Adicionada a calculadora: `calc <operacao> <a> <b>` com `soma`, `subtracao`, `multiplicacao` e `divisao` sobre `float64`. Código em `cmd/calc/`, `internal/calculo/` e `internal/cli/`; só biblioteca padrão.
