@@ -38,6 +38,9 @@ Operações (nomes sem acento): `soma`, `subtracao`, `multiplicacao`, `divisao`.
 go run ./cmd/calc soma 2 3        # 5
 go run ./cmd/calc divisao 7 2     # 3.5
 go run ./cmd/calc divisao 6 0     # erro: divisão por zero (código 1)
+go run ./cmd/calc soma 1e308 1e308  # erro: resultado fora da faixa (código 1)
+go run ./cmd/calc multiplicacao -1 0 # 0
+go run ./cmd/calc soma 0.1 0.2    # 0.30000000000000004
 ```
 
 O resultado vai para `stdout`. Erros vão para `stderr`, em português, sem pânico.
@@ -45,10 +48,12 @@ O resultado vai para `stdout`. Erros vão para `stderr`, em português, sem pân
 | Código de saída | Significado |
 | --- | --- |
 | 0 | Sucesso |
-| 1 | Divisão por zero |
-| 2 | Uso ou entrada inválida (operação desconhecida, operando não numérico, argumentos ausentes ou em excesso) |
+| 1 | Erro de cálculo: divisão por zero, ou resultado fora da faixa de `float64` (overflow) |
+| 2 | Uso ou entrada inválida: operação desconhecida, operando não numérico, `nan`, `inf`, `Infinity`, hexadecimais (`0x1p-2`), sublinhados (`1_000`), vírgula decimal, argumentos ausentes ou em excesso, ou operando fora da faixa de `float64` (`1e999`) |
 
-Não informado: formato de impressão do float além do que o Go produz por padrão, tratamento de overflow, `Inf` e `NaN`, separador decimal (hoje só o ponto é aceito).
+Os operandos aceitos são decimais finitos com ponto (`+5`, `.5`, `5.`, `1e3`). Infinitos e `NaN` não são aceitos como entrada nem produzidos como resultado. O resultado é impresso no menor texto que reconstrói o valor (`formatar` com `'g'` e precisão `-1`): `5`, `0.30000000000000004`, `1e+22`; zero negativo sai como `0`. Por consequência do formato `'g'`, magnitudes grandes saem em notação científica: `soma 500000 500000` imprime `1e+06`.
+
+Não informado: comportamento de underflow (por exemplo `soma 1e-999 0` imprime `0` sem erro) e o texto exato das mensagens de erro.
 
 ## Como testar
 
