@@ -5,7 +5,7 @@ Serve para exercitar o harness de desenvolvimento do pacote (skills, agentes `sd
 
 Escopo previsto da calculadora: soma, subtração, multiplicação e divisão. A divisão por zero devolve erro, sem pânico.
 
-> **Estado atual (Onda 0):** a calculadora ainda **não existe**. Esta onda só prepara o repositório e instala o harness. O código entra nas ondas seguintes, pelo fluxo do harness.
+> **Estado atual:** a Onda 0 preparou o repositório e instalou o harness; a change `calculadora-basica` implementa a calculadora (código em `cmd/calc/` e `internal/`).
 
 ## Pré-requisitos
 
@@ -26,8 +26,35 @@ A dependência está fixada em `apm.yml` (`emilianoeloi/apm#v1.0.0-alpha.1`). A 
 
 ## Como rodar
 
-Não há o que rodar ainda: a calculadora não existe. Quando existir, o ponto de entrada ficará em `cmd/` e a lógica em `internal/`.
+```bash
+go run ./cmd/calc <operacao> <a> <b>
+# ou compilar o executável:
+go build -o calc ./cmd/calc && ./calc <operacao> <a> <b>
+```
+
+Operações (nomes sem acento): `soma`, `subtracao`, `multiplicacao`, `divisao`. Os operandos são números `float64`. Uma operação por execução, com exatamente dois operandos.
+
+```bash
+go run ./cmd/calc soma 2 3        # 5
+go run ./cmd/calc divisao 7 2     # 3.5
+go run ./cmd/calc divisao 6 0     # erro: divisão por zero (código 1)
+```
+
+O resultado vai para `stdout`. Erros vão para `stderr`, em português, sem pânico.
+
+| Código de saída | Significado |
+| --- | --- |
+| 0 | Sucesso |
+| 1 | Divisão por zero |
+| 2 | Uso ou entrada inválida (operação desconhecida, operando não numérico, argumentos ausentes ou em excesso) |
+
+Não informado: formato de impressão do float além do que o Go produz por padrão, tratamento de overflow, `Inf` e `NaN`, separador decimal (hoje só o ponto é aceito).
 
 ## Como testar
 
-Também não há testes ainda. Com a primeira funcionalidade, `go test ./...` passa a ser o comando de sensores do harness (`sensors_command` em `harness.config.json`). Até lá o campo fica vazio (não informado), porque `go test ./...` sem `go.mod` travaria o hook de Stop.
+```bash
+go vet ./...
+go test ./...
+```
+
+`go test ./...` é o `sensors_command` do harness (`harness.config.json`), executado pelo hook de Stop.
