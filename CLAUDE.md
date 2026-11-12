@@ -63,7 +63,7 @@ e nos checkboxes do `tasks.md`.
 
 ## Quality gates mínimos
 
-- Sensores (`sensors_command`): não informado. Ainda não há código; `go test ./...` vira o comando de sensores com a primeira funcionalidade.
+- Sensores (`sensors_command`): `go test ./...`.
 - Lint, build e cobertura: não informado.
 
 ## Escopo
