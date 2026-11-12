@@ -4,6 +4,16 @@ Formato baseado em [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/).
 
 ## [Não lançado]
 
+### Change `calculadora-basica` — calculadora de linha de comando
+
+- Adicionada a calculadora: `calc <operacao> <a> <b>` com `soma`, `subtracao`, `multiplicacao` e `divisao` sobre `float64`. Código em `cmd/calc/`, `internal/calculo/` e `internal/cli/`; só biblioteca padrão.
+- Divisão por zero (inclusive `-0`) devolve erro, sem pânico. Códigos de saída: 0 sucesso, 1 divisão por zero, 2 entrada inválida; resultado em `stdout`, erros em português em `stderr`.
+- `sensors_command` do harness passou a ser `go test ./...`.
+- Change arquivada em `openspec/changes/archive/2026-11-12-calculadora-basica/`; specs principais em `openspec/specs/`.
+- Revisão do `sdlc-reviewer`: aprovado com ressalvas; achados de teste de `-0` na CLI e de operando fora da faixa corrigidos.
+- Não informado (decisões em aberto no `design.md` arquivado): D-A9 formato de impressão do float, D-A10 overflow/`Inf`/`NaN`, D-A11 separador decimal, D-A12 versão mínima do Go (hoje `go 1.27.1`, gravada pelo `go mod init`), D-A13 idioma dos identificadores (hoje português), texto exato das mensagens de erro.
+- Observação do harness: trocar o `sensors_command` para `go test ./...` antes de existir o `go.mod` bloqueou o hook de Stop até o módulo ser criado.
+
 ### Onda 0 — preparação do repositório e do harness
 
 - Adicionados `README.md` e `CHANGELOG.md` iniciais.
