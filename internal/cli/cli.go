@@ -64,10 +64,29 @@ func interpretar(args []string) (operacao string, a, b float64, err error) {
 func lerOperando(texto string) (float64, error) {
 	valor, err := strconv.ParseFloat(texto, 64)
 	if err != nil {
-		return 0, fmt.Errorf("operando %q não é um número válido", texto)
+		if errors.Is(err, strconv.ErrRange) {
+			return 0, erroDeOperando{
+				mensagem: fmt.Sprintf("operando %q fora da faixa de float64", texto),
+				causa:    err,
+			}
+		}
+		return 0, erroDeOperando{
+			mensagem: fmt.Sprintf("operando %q não é um número válido", texto),
+			causa:    err,
+		}
 	}
 	return valor, nil
 }
+
+// erroDeOperando mantém a mensagem em português para o usuário e preserva a
+// causa original (strconv) para errors.Is e errors.As.
+type erroDeOperando struct {
+	mensagem string
+	causa    error
+}
+
+func (e erroDeOperando) Error() string { return e.mensagem }
+func (e erroDeOperando) Unwrap() error { return e.causa }
 
 // calcular assume operação e operandos já validados por interpretar.
 func calcular(operacao string, a, b float64) (float64, error) {

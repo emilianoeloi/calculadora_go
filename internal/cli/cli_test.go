@@ -46,15 +46,40 @@ func TestExecutarSucesso(t *testing.T) {
 }
 
 func TestExecutarDivisaoPorZero(t *testing.T) {
-	stdout, stderr, codigo := executar("divisao", "6", "0")
-	if codigo != 1 {
-		t.Errorf("código = %d, esperado 1", codigo)
+	casos := []struct {
+		nome string
+		args []string
+	}{
+		{"Divisor zero", []string{"divisao", "6", "0"}},
+		{"Divisor zero negativo", []string{"divisao", "6", "-0"}},
+		{"Zero dividido por zero", []string{"divisao", "0", "0"}},
+	}
+	for _, c := range casos {
+		t.Run(c.nome, func(t *testing.T) {
+			stdout, stderr, codigo := executar(c.args...)
+			if codigo != 1 {
+				t.Errorf("código = %d, esperado 1", codigo)
+			}
+			if stdout != "" {
+				t.Errorf("stdout = %q, esperado vazio", stdout)
+			}
+			if !strings.Contains(stderr, "divisão por zero") {
+				t.Errorf("stderr = %q, esperada mensagem de divisão por zero", stderr)
+			}
+		})
+	}
+}
+
+func TestExecutarOperandoForaDaFaixa(t *testing.T) {
+	stdout, stderr, codigo := executar("soma", "1e999", "1")
+	if codigo != 2 {
+		t.Errorf("código = %d, esperado 2", codigo)
 	}
 	if stdout != "" {
 		t.Errorf("stdout = %q, esperado vazio", stdout)
 	}
-	if stderr == "" {
-		t.Error("stderr vazio, esperada mensagem de erro em português")
+	if !strings.Contains(stderr, "fora da faixa") {
+		t.Errorf("stderr = %q, esperada mensagem de operando fora da faixa", stderr)
 	}
 }
 
